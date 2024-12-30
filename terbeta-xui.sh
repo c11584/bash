@@ -233,6 +233,7 @@ install_xui() {
     echo -e "----------------------------------------------"
     echo -e ""
     show_login_info
+    echo -e "install success"
 }
 
 show_login_info(){
