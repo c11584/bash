@@ -7,6 +7,15 @@ plain='\033[0m'
 
 cur_dir=$(pwd)
 
+xport=$1
+xuser=$2
+xpass=$3
+
+echo -e "port: $xport"
+echo -e "xuser: $xuser"
+echo -e "xpass: $xpass"
+exit 1
+
 # check root
 [[ $EUID -ne 0 ]] && echo -e "${red}致命错误: ${plain} 请使用 root 权限运行此脚本\n" && exit 1
 
