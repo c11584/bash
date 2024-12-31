@@ -11,11 +11,6 @@ xport=$1
 xuser=$2
 xpass=$3
 
-echo -e "port: $xport"
-echo -e "xuser: $xuser"
-echo -e "xpass: $xpass"
-exit 1
-
 # check root
 [[ $EUID -ne 0 ]] && echo -e "${red}致命错误: ${plain} 请使用 root 权限运行此脚本\n" && exit 1
 
@@ -120,10 +115,10 @@ install_base() {
 
 # This function will be called when user installed x-ui out of security
 config_after_install() {
-    echo -e "auto set port/user info $1, $2, $3"
-    /usr/local/x-ui/x-ui setting -username $2 -password $3
+    echo -e "auto set port/user info $xport, $xuser, $xpass"
+    /usr/local/x-ui/x-ui setting -username $xuser -password $xpass
     echo -e "${yellow} username and password set success!${plain}"
-    /usr/local/x-ui/x-ui setting -port $1
+    /usr/local/x-ui/x-ui setting -port $xport
     echo -e "${yellow}port set success!${plain}"
     /usr/local/x-ui/x-ui migrate
 }
@@ -175,7 +170,7 @@ install_x-ui() {
     wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/Misaka-blog/3x-ui/main/x-ui.sh
     chmod +x /usr/local/x-ui/x-ui.sh
     chmod +x /usr/bin/x-ui
-    config_after_install $1 $2 $3
+    config_after_install
 
     systemctl daemon-reload
     systemctl enable x-ui
@@ -217,4 +212,4 @@ install_x-ui() {
 }
 
 install_base
-install_x-ui $1 $2 $3
+install_x-ui
