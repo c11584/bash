@@ -111,14 +111,11 @@ install_base() {
 
 # This function will be called when user installed x-ui out of security
 config_after_install() {
-    echo -e "自动设置端口/用户信息"
-    echo -e "port: $1"
-    echo -e "username: $2"
-    echo -e "password: $3"
+    echo -e "auto set port/user info $1, $2, $3"
     /usr/local/x-ui/x-ui setting -username $2 -password $3
-    echo -e "${yellow}用户名和密码设置成功!${plain}"
+    echo -e "${yellow} username and password set success!${plain}"
     /usr/local/x-ui/x-ui setting -port $1
-    echo -e "${yellow}面板端口号设置成功!${plain}"
+    echo -e "${yellow}port set success!${plain}"
     /usr/local/x-ui/x-ui migrate
 }
 
