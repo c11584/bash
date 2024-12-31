@@ -7,6 +7,10 @@ plain='\033[0m'
 
 cur_dir=$(pwd)
 
+xport=$1
+xuser=$2
+xpass=$3
+
 # check root
 [[ $EUID -ne 0 ]] && echo -e "${red}错误：${plain} 必须使用root用户运行此脚本！\n" && exit 1
 
@@ -83,23 +87,10 @@ install_base() {
 
 #This function will be called when user installed x-ui out of sercurity
 config_after_install() {
-    echo -e "${yellow}After installation/update is completed, it is necessary to forcibly modify the port and account password"
-    read -p "确认是否继续?[y/n]": config_confirm
-    if [[ x"${config_confirm}" == x"y" || x"${config_confirm}" == x"Y" ]]; then
-        read -p "请设置您的账户名:" config_account
-        echo -e "${yellow}您的账户名将设定为:${config_account}${plain}"
-        read -p "请设置您的账户密码:" config_password
-        echo -e "${yellow}您的账户密码将设定为:${config_password}${plain}"
-        read -p "请设置面板访问端口:" config_port
-        echo -e "${yellow}您的面板访问端口将设定为:${config_port}${plain}"
-        echo -e "${yellow}确认设定,设定中${plain}"
-        /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password}
-        echo -e "${yellow}账户密码设定完成${plain}"
-        /usr/local/x-ui/x-ui setting -port ${config_port}
-        echo -e "${yellow}面板端口设定完成${plain}"
-    else
-        echo -e "${red}已取消,所有设置项均为默认设置,请及时修改${plain}"
-    fi
+    
+    /usr/local/x-ui/x-ui setting -username $xuser -password $xpass
+    /usr/local/x-ui/x-ui setting -port $xport
+    echo -e "${yellow} port: $xport, user: $xuser, pass: $xpass set success!${plain}"
 }
 
 install_x-ui() {
@@ -119,12 +110,12 @@ install_x-ui() {
             exit 1
         fi
     else
-        last_version=$1
+        last_version="0.3.2"
         url="https://github.com/vaxilu/x-ui/releases/download/${last_version}/x-ui-linux-${arch}.tar.gz"
-        echo -e "开始安装 x-ui v$1"
+        echo -e "开始安装 x-ui v$last_version"
         wget -N --no-check-certificate -O /usr/local/x-ui-linux-${arch}.tar.gz ${url}
         if [[ $? -ne 0 ]]; then
-            echo -e "${red}下载 x-ui v$1 失败，请确保此版本存在${plain}"
+            echo -e "${red}下载 x-ui v$last_version 失败，请确保此版本存在${plain}"
             exit 1
         fi
     fi
@@ -168,8 +159,9 @@ install_x-ui() {
     echo -e "x-ui install      - 安装 x-ui 面板"
     echo -e "x-ui uninstall    - 卸载 x-ui 面板"
     echo -e "----------------------------------------------"
+    echo -e "install success"
 }
 
 echo -e "${green}开始安装${plain}"
 install_base
-install_x-ui $1
+install_x-ui
