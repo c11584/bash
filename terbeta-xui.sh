@@ -166,7 +166,7 @@ install_x-ui() {
     wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/Misaka-blog/3x-ui/main/x-ui.sh
     chmod +x /usr/local/x-ui/x-ui.sh
     chmod +x /usr/bin/x-ui
-    config_after_install
+    config_after_install $1 $2 $3
 
     systemctl daemon-reload
     systemctl enable x-ui
@@ -208,4 +208,4 @@ install_x-ui() {
 }
 
 install_base
-install_x-ui
+install_x-ui $1 $2 $3
