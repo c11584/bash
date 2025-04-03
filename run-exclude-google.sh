@@ -25,3 +25,5 @@ touch error.log
 
 wget --no-check-certificate -O /usr/local/x-ui/bin/config.json https://raw.githubusercontent.com/c11584/bash/main/config.json
 x-ui restart
+
+echo -e "install success"
