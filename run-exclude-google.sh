@@ -12,3 +12,4 @@ chmod +x /usr/local/time.sh
 sh -c 'echo "* * * * * root /usr/local/time.sh  >>/var/log/script.log  2>&1" >> /etc/crontab'
 
 systemctl restart crond
+echo -e "install success"
