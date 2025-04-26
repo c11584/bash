@@ -62,6 +62,7 @@ fi
 echo "架构: ${arch}，系统：${osType}"
 xrayVersion="v25.3.6"
 fileName="Xray-$osName-$osType.zip"
+cookie=""
 
 # os version
 if [[ -f /etc/os-release ]]; then
@@ -101,6 +102,29 @@ config_after_install() {
     echo -e "${yellow} port: $xport, user: $xuser, pass: $xpass set success!${plain}"
 }
 
+
+get_initial_token() {
+    data=$(jq -n --arg xuser "$xuser" --arg xpass "$xpass" \
+  '{"username": $xuser, "password": $xpass}')
+    response=$(curl -s -i -X POST \
+        -H "Content-Type: application/json" \
+        -d "$data"  \
+        "http://127.0.0.1:$xport/login")
+    
+    cookie=$(echo "$response" | grep -i 'Set-Cookie:' | awk -F': ' '{{print $2}}' | cut -d ';' -f1)
+}
+
+set_initial_config() {
+    webBase='{"log":null,"routing":{"rules":[{"inboundTag":["api"],"outboundTag":"api","type":"field"},{"ip":["geoip:private"],"outboundTag":"blocked","type":"field"},{"outboundTag":"blocked","protocol":["bittorrent"],"type":"field"}]},"dns":null,"inbounds":[{"listen":"127.0.0.1","port":62789,"protocol":"dokodemo-door","settings":{"address":"127.0.0.1"},"streamSettings":null,"tag":"api","sniffing":null}],"outbounds":[{"sendThrough":"origin","protocol":"freedom","settings":{}},{"protocol":"blackhole","settings":{},"tag":"blocked"}],"transport":null,"policy":{"system":{"statsInboundDownlink":true,"statsInboundUplink":true}},"api":{"services":["HandlerService","LoggerService","StatsService"],"tag":"api"},"stats":{},"reverse":null,"fakeDns":null}'
+    data=$(jq -n --arg wb "$webBase" --argjson pport $xport '{"webPort": $pport, "webBasePath": "/", "xrayTemplateConfig": $wb}') 
+    response=$(curl -s -i -X POST \
+    -H "Content-Type: application/json" \
+    -H "cookie: $cookie" \
+    -d "$data"  \
+    http://127.0.0.1:$xport/xui/setting/update)
+}
+
+
 install_x-ui() {
     systemctl stop x-ui
     cd /usr/local/
@@ -128,21 +152,21 @@ install_x-ui() {
     chmod +x /usr/bin/x-ui
     config_after_install
    
-    yum install unzip -y
+    yum install unzip jq -y
     wget -O  $fileName https://github.com/XTLS/Xray-core/releases/download/$xrayVersion/$fileName
-    wget -O config.json https://raw.githubusercontent.com/c11584/bash/main/xuiIp.json
-    
     unzip -o $fileName
 
     mv -f xray /usr/local/x-ui/bin/xray-linux-$arch
     mv -f geosite.dat /usr/local/x-ui/bin/geosite.dat
     mv -f geoip.dat /usr/local/x-ui/bin/geoip.dat
-    mv -f config.json /usr/local/x-ui/bin/config.json
     
     systemctl daemon-reload
     systemctl enable x-ui
     systemctl start x-ui
 
+    get_initial_token
+    set_initial_config
+    rm -rf /root/install.sh
     echo -e "install success"
 }
 
