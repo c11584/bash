@@ -2,4 +2,4 @@
 
 reboot
 
-echo "install_success"
+echo -e "install success"
